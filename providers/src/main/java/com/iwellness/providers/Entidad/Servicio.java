@@ -20,6 +20,9 @@ public class Servicio {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_servicio")
     private Long _idServicio;
+   
+    @Column(name = "id_proveedor")
+    private Long _idProveedor;
     
     private String nombre;
     private String descripcion;

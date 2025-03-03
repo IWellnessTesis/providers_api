@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.iwellness.providers.Entidad.Servicio;
 import com.iwellness.providers.Servicio.IServicioServicio;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController
