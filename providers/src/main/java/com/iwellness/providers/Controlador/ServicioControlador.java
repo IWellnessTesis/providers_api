@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,7 +38,7 @@ public class ServicioControlador {
     }
 
     @PostMapping("/save/{servicio}")
-    public ResponseEntity<?> Guardar(@PathVariable Servicio servicio){
+    public ResponseEntity<?> Guardar(@RequestBody Servicio servicio){
 try {
             return ResponseEntity.ok(servicioServicio.Guardar(servicio));
         } catch (Exception e) {
@@ -45,7 +46,7 @@ try {
         }    }
 
     @PutMapping("/update/{servicio}")
-    public ResponseEntity<?> Actualizar(@PathVariable Servicio servicio){
+    public ResponseEntity<?> Actualizar(@RequestBody Servicio servicio){
         try {
             return ResponseEntity.ok(servicioServicio.Actualizar(servicio));
         } catch (Exception e) {
