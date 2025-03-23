@@ -16,7 +16,7 @@ public class DataSourceBean {
 public DataSource dataSource() {
     final DriverManagerDataSource dataSource = new DriverManagerDataSource();
     dataSource.setDriverClassName("org.sqlite.JDBC");
-    dataSource.setUrl("jdbc:sqlite:iwellness_providers.db");//Nombre de base de datos
+    dataSource.setUrl("jdbc:sqlite:providers/iwellness_providers.db");//Nombre de base de datos
     //dataSource.setUsername(env.getProperty("user"));
     //dataSource.setPassword(env.getProperty("password"));
     return dataSource;
