@@ -37,7 +37,7 @@ public class ServicioControlador {
         }
     }
 
-    @PostMapping("/save/{servicio}")
+    @PostMapping("/save")
     public ResponseEntity<?> Guardar(@RequestBody Servicio servicio){
 try {
             return ResponseEntity.ok(servicioServicio.Guardar(servicio));
