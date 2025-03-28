@@ -6,6 +6,8 @@ import java.util.NoSuchElementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.iwellness.providers.Clientes.ProveedorFeignClient;
+import com.iwellness.providers.DTO.ProveedorDTO;
 import com.iwellness.providers.Entidad.Servicio;
 import com.iwellness.providers.Repositorio.IServicioRepositorio;
 
@@ -14,6 +16,9 @@ public class IServicioServicioImpl implements IServicioServicio {
 
     @Autowired
     private IServicioRepositorio servicioRepositorio;
+
+    @Autowired
+    private ProveedorFeignClient proveedorFeignClient;
 
     @Override
      //retorna una lista de servicios
@@ -31,6 +36,17 @@ public class IServicioServicioImpl implements IServicioServicio {
     @Override
     //guarda un servicio
     public Servicio Guardar(Servicio servicio) {
+        // Verificar que exista un provedor con ese id
+        ProveedorDTO proveedorDTO;
+        try {
+            proveedorDTO = proveedorFeignClient.obtenerProveedor(servicio.get_idProveedor());
+        } catch (Exception e) {
+            throw new RuntimeException("Error al comunicarse con el microservicio de usuarios: " + e.getMessage());
+        }
+
+        if (proveedorDTO == null) {
+            throw new IllegalArgumentException("El proveedor con ID " + servicio.get_idProveedor() + " no existe.");
+        }
         return servicioRepositorio.save(servicio);
     }
 
