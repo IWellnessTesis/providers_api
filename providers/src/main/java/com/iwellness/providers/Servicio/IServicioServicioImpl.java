@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.iwellness.providers.Clientes.ProveedorFeignClient;
 import com.iwellness.providers.DTO.ProveedorDTO;
@@ -60,5 +62,15 @@ public class IServicioServicioImpl implements IServicioServicio {
     //elimina un servicio por id
     public void Eliminar(Long id) {
         servicioRepositorio.deleteById(id);
+    }
+
+    public List<Servicio> obtenerServiciosPorProveedor(Long idProveedor) {
+        // Verificar si el proveedor existe
+        if (!servicioRepositorio.existsById(idProveedor)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proveedor no encontrado");
+        }
+
+        // Buscar los servicios del proveedor
+        return servicioRepositorio.findBy_idProveedor(idProveedor);
     }
 }

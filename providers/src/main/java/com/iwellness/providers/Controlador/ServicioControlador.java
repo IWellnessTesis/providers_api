@@ -1,5 +1,7 @@
 package com.iwellness.providers.Controlador;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,6 +64,12 @@ try {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró la entidad con ID: " + id);
         }
+    }
+
+    @GetMapping("/{idProveedor}/servicios")
+    public ResponseEntity<List<Servicio>> obtenerServicios(@PathVariable Long idProveedor) {
+        List<Servicio> servicios = servicioServicio.obtenerServiciosPorProveedor(idProveedor);
+        return ResponseEntity.ok(servicios);
     }
     
 }
