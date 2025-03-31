@@ -41,11 +41,12 @@ public class ServicioControlador {
 
     @PostMapping("/save")
     public ResponseEntity<?> Guardar(@RequestBody Servicio servicio){
-try {
+    try {
             return ResponseEntity.ok(servicioServicio.Guardar(servicio));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al guardar el servicio: " + e.getMessage());
-        }    }
+        }    
+    }
 
     @PutMapping("/update/{servicio}")
     public ResponseEntity<?> Actualizar(@RequestBody Servicio servicio){
@@ -70,6 +71,12 @@ try {
     public ResponseEntity<List<Servicio>> obtenerServicios(@PathVariable Long idProveedor) {
         List<Servicio> servicios = servicioServicio.obtenerServiciosPorProveedor(idProveedor);
         return ResponseEntity.ok(servicios);
+    }
+
+    @DeleteMapping("/eliminarPorProveedor/{idProveedor}")
+    public ResponseEntity<String> eliminarServiciosPorProveedor(@PathVariable Long idProveedor) {
+        servicioServicio.eliminarServiciosPorProveedor(idProveedor);
+        return ResponseEntity.ok("Servicios del proveedor eliminados correctamente");
     }
     
 }

@@ -2,16 +2,20 @@ package com.iwellness.providers.Servicio;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.iwellness.providers.Clientes.PreferenciaFeignClient;
 import com.iwellness.providers.Clientes.ProveedorFeignClient;
 import com.iwellness.providers.DTO.ProveedorDTO;
 import com.iwellness.providers.Entidad.Servicio;
 import com.iwellness.providers.Repositorio.IServicioRepositorio;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class IServicioServicioImpl implements IServicioServicio {
@@ -21,6 +25,9 @@ public class IServicioServicioImpl implements IServicioServicio {
 
     @Autowired
     private ProveedorFeignClient proveedorFeignClient;
+
+    @Autowired
+    private PreferenciaFeignClient preferenciaFeignClient;
 
     @Override
      //retorna una lista de servicios
@@ -72,5 +79,16 @@ public class IServicioServicioImpl implements IServicioServicio {
 
         // Buscar los servicios del proveedor
         return servicioRepositorio.findBy_idProveedor(idProveedor);
+    }
+
+    @Transactional
+    public void eliminarServiciosPorProveedor(Long idProveedor) {
+        Optional<Servicio> servicioOpt = servicioRepositorio.findById(idProveedor);
+        Servicio servicio = servicioOpt.orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+
+        //Elimina las preferencias de ese servicio del microservicio de preferencias
+        preferenciaFeignClient.elimintarPreferenciasPorServicio(servicio.get_idServicio());
+        
+        servicioRepositorio.deleteBy_idProveedor(idProveedor);
     }
 }

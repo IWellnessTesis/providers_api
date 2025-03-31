@@ -9,5 +9,7 @@ import com.iwellness.providers.Entidad.Servicio;
 public interface IServicioRepositorio extends CrudRepository<Servicio, Long> {
 
     List<Servicio> findBy_idProveedor(Long idProveedor);
+
+    void deleteBy_idProveedor(Long idProveedor);
     
 }
