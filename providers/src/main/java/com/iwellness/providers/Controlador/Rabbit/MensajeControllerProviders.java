@@ -1,20 +1,37 @@
 package com.iwellness.providers.Controlador.Rabbit;
 
+
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.iwellness.providers.Servicio.Rabbit.MensajeServiceProviders;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iwellness.providers.Entidad.Servicio;
+import com.iwellness.providers.Servicio.Rabbit.MensajeServiceProvidersConfig;
 
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequestMapping("/api/servicio/publish")
+@RequiredArgsConstructor
 public class MensajeControllerProviders {
-          private final MensajeServiceProviders mensajeServiceProviders;
 
-    public MensajeControllerProviders(MensajeServiceProviders mensajeServiceProviders) {
-        this.mensajeServiceProviders = mensajeServiceProviders;
-    }
 
-    @PostMapping("/enviar")
-    public String enviarMensaje(@RequestBody String mensaje) {
-        mensajeServiceProviders.enviarMensaje(mensaje);
-        return "Mensaje enviado: " + mensaje;
+ 
+    private final RabbitTemplate template;
+
+    @PostMapping("/mensaje/enviar")
+    public String enviarMensaje(@RequestBody Servicio servicio) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonServicio = objectMapper.writeValueAsString(servicio);
+            this.template.convertAndSend(MensajeServiceProvidersConfig.EXCHANGE_NAME, MensajeServiceProvidersConfig.ROUTING_KEY_PROVIDER, jsonServicio);
+            return "Servicio publicado: " + servicio.getNombre() + " con id: " + servicio.get_idServicio();
+        } catch (JsonProcessingException e) {
+            return "Error al serializar el servicio: " + e.getMessage();
+        }
     }
 }
