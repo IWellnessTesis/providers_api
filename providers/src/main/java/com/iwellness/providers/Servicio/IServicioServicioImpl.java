@@ -69,6 +69,7 @@ public class IServicioServicioImpl implements IServicioServicio {
     //elimina un servicio por id
     public void Eliminar(Long id) {
         servicioRepositorio.deleteById(id);
+        preferenciaFeignClient.elimintarPreferenciasPorServicio(id);
     }
 
     public List<Servicio> obtenerServiciosPorProveedor(Long idProveedor) {
