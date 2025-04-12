@@ -74,10 +74,9 @@ public class IServicioServicioImpl implements IServicioServicio {
 
     public List<Servicio> obtenerServiciosPorProveedor(Long idProveedor) {
         // Verificar si el proveedor existe
-        if (!servicioRepositorio.existsById(idProveedor)) {
+        if (!servicioRepositorio.existsBy_idProveedor(idProveedor)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proveedor no encontrado");
         }
-
         // Buscar los servicios del proveedor
         return servicioRepositorio.findBy_idProveedor(idProveedor);
     }
