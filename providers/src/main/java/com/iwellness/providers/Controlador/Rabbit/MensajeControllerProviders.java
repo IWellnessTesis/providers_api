@@ -7,8 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.iwellness.providers.Entidad.Servicio;
 import com.iwellness.providers.Servicio.Rabbit.MensajeServiceProvidersConfig;
 
@@ -26,11 +25,12 @@ public class MensajeControllerProviders {
     @PostMapping("/mensaje/enviar")
     public String enviarMensaje(@RequestBody Servicio servicio) {
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String jsonServicio = objectMapper.writeValueAsString(servicio);
-            this.template.convertAndSend(MensajeServiceProvidersConfig.EXCHANGE_NAME, MensajeServiceProvidersConfig.ROUTING_KEY_PROVIDER, jsonServicio);
+            this.template.convertAndSend(MensajeServiceProvidersConfig.EXCHANGE_NAME, 
+            MensajeServiceProvidersConfig.ROUTING_KEY_PROVIDER, 
+            servicio);
+
             return "Servicio publicado: " + servicio.getNombre() + " con id: " + servicio.get_idServicio();
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             return "Error al serializar el servicio: " + e.getMessage();
         }
     }

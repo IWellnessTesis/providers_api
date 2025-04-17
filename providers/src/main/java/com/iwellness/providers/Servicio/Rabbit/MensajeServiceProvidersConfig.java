@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MensajeServiceProvidersConfig {
     public static final String EXCHANGE_NAME = "message_exchange";
-    public static final String QUEUE_NAME = "my_queue";
+    public static final String QUEUE_NAME = "queue_services";
     public static final String ROUTING_KEY_PROVIDER = "my_routing_key_provider";
 
     @Bean
