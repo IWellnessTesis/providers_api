@@ -14,4 +14,8 @@ public interface IServicioServicio {
     Servicio Actualizar(Servicio servicio);
     
     void Eliminar(Long id);
+
+    List<Servicio> obtenerServiciosPorProveedor(Long idProveedor);
+
+    void eliminarServiciosPorProveedor(Long idProveedor);
 }

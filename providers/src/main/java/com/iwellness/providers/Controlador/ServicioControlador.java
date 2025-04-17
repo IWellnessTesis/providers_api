@@ -1,8 +1,11 @@
 package com.iwellness.providers.Controlador;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +21,7 @@ import com.iwellness.providers.Servicio.IServicioServicio;
 
 @RestController
 @RequestMapping("/api/servicio")
+@CrossOrigin(origins = "*")
 public class ServicioControlador {
     
     @Autowired
@@ -37,13 +41,14 @@ public class ServicioControlador {
         }
     }
 
-    @PostMapping("/save/{servicio}")
+    @PostMapping("/save")
     public ResponseEntity<?> Guardar(@RequestBody Servicio servicio){
-try {
+    try {
             return ResponseEntity.ok(servicioServicio.Guardar(servicio));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al guardar el servicio: " + e.getMessage());
-        }    }
+        }    
+    }
 
     @PutMapping("/update/{servicio}")
     public ResponseEntity<?> Actualizar(@RequestBody Servicio servicio){
@@ -62,6 +67,18 @@ try {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró la entidad con ID: " + id);
         }
+    }
+
+    @GetMapping("/{idProveedor}/servicios")
+    public ResponseEntity<List<Servicio>> obtenerServicios(@PathVariable Long idProveedor) {
+        List<Servicio> servicios = servicioServicio.obtenerServiciosPorProveedor(idProveedor);
+        return ResponseEntity.ok(servicios);
+    }
+
+    @DeleteMapping("/eliminarPorProveedor/{idProveedor}")
+    public ResponseEntity<String> eliminarServiciosPorProveedor(@PathVariable Long idProveedor) {
+        servicioServicio.eliminarServiciosPorProveedor(idProveedor);
+        return ResponseEntity.ok("Servicios del proveedor eliminados correctamente");
     }
     
 }
