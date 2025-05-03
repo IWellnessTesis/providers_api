@@ -83,12 +83,20 @@ public class IServicioServicioImpl implements IServicioServicio {
 
     @Transactional
     public void eliminarServiciosPorProveedor(Long idProveedor) {
-        Optional<Servicio> servicioOpt = servicioRepositorio.findById(idProveedor);
-        Servicio servicio = servicioOpt.orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
-
-        //Elimina las preferencias de ese servicio del microservicio de preferencias
-        preferenciaFeignClient.elimintarPreferenciasPorServicio(servicio.get_idServicio());
-        
+        // Verificar si el proveedor tiene servicios
+        List<Servicio> servicios = servicioRepositorio.findBy_idProveedor(idProveedor);
+    
+        if (servicios == null || servicios.isEmpty()) {
+            // Puedes retornar silenciosamente o lanzar una excepción informativa
+            return;
+        }
+    
+        // Eliminar preferencias y luego los servicios
+        for (Servicio servicio : servicios) {
+            preferenciaFeignClient.elimintarPreferenciasPorServicio(servicio.get_idServicio());
+        }
+    
         servicioRepositorio.deleteBy_idProveedor(idProveedor);
     }
+    
 }
