@@ -3,10 +3,10 @@ package com.iwellness.providers.DTO;
 import lombok.Data;
 
 @Data
-public class ProveedorDTO {
-    private Long _idUsuario;
-    private String nombreEmpresa;
-    private String descripcion;
+public class GeoServiceBusinessObject {
+    private String serviceId;
+    private String serviceName;
     private String coordenadax;
     private String coordenaday;
+
 }
