@@ -6,7 +6,8 @@ import lombok.Data;
 public class GeoServiceBusinessObject {
     private String serviceId;
     private String serviceName;
-    private String coordenadax;
-    private String coordenaday;
+    private String coordenadaX;
+    private String coordenadaY;
+    private boolean estado;
 
 }

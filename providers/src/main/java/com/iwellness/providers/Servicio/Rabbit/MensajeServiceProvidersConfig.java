@@ -47,6 +47,16 @@ public class MensajeServiceProvidersConfig {
     }
 
     @Bean
+    public Queue queueService() {
+        return new Queue(QUEUE_NAME_SERVICE, true);
+    }
+
+    @Bean
+    public Binding bindingService(Queue queueService, TopicExchange exchange) {
+        return BindingBuilder.bind(queueService).to(exchange).with(ROUTING_KEY_SERVICE);
+    }
+
+    @Bean
     public Binding bindingBusquedaServicio(Queue queueBusquedaServicio, TopicExchange exchange) {
         return BindingBuilder.bind(queueBusquedaServicio).to(exchange).with(ROUTING_KEY_PROVIDER);
     }

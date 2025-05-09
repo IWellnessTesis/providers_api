@@ -6,7 +6,14 @@ import lombok.Data;
 public class ProveedorDTO {
     private Long _idUsuario;
     private String nombreEmpresa;
-    private String descripcion;
-    private String coordenadax;
-    private String coordenaday;
+    private ProveedorInfo proveedorInfo;
+
+
+    @Data
+    public class ProveedorInfo {
+        private String coordenadaX;
+        private String coordenadaY;
+    }
+
+
 }

@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.iwellness.providers.Clientes.ProveedorFeignClient;
-import com.iwellness.providers.Clientes.UsuarioFeignClient;
 import com.iwellness.providers.DTO.BusquedaServicioDTO;
 import com.iwellness.providers.DTO.BusquedaServicioEstadoCivilDTO;
 import com.iwellness.providers.DTO.GeoServiceBusinessObject;
@@ -40,8 +39,6 @@ public class ServicioControlador {
     @Autowired
     private ProveedorFeignClient proveedorClient;
 
-    @Autowired
-    private UsuarioFeignClient usuarioClient;
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
@@ -61,27 +58,42 @@ public class ServicioControlador {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<?> Guardar(@RequestBody Servicio servicio){
-    try {Servicio servicioGuardado = servicioServicio.Guardar(servicio);
+public ResponseEntity<?> Guardar(@RequestBody Servicio servicio){
+    try {
+        Servicio servicioGuardado = servicioServicio.Guardar(servicio);
 
         // Obtener datos del proveedor
         ProveedorDTO proveedor = proveedorClient.obtenerProveedor(servicio.get_idProveedor());
+
+        if (proveedor.getProveedorInfo() == null) {
+            throw new RuntimeException("El proveedor no tiene información de coordenadas (campo 'proveedorInfo' es null)");
+        }
+
+        // Acceder a las coordenadas anidadas
+        String coordenadaX = proveedor.getProveedorInfo().getCoordenadaX();
+        String coordenadaY = proveedor.getProveedorInfo().getCoordenadaY();
+
+        System.out.println("Proveedor recibido:");
+        System.out.println("Coordenada X: " + coordenadaX);
+        System.out.println("Coordenada Y: " + coordenadaY);
 
         // Crear objeto para análisis
         GeoServiceBusinessObject geoObj = new GeoServiceBusinessObject();
         geoObj.setServiceId(servicioGuardado.get_idServicio().toString());
         geoObj.setServiceName(servicioGuardado.getNombre());
-        geoObj.setCoordenadax(proveedor.getCoordenadax());
-        geoObj.setCoordenaday(proveedor.getCoordenaday());
+        geoObj.setCoordenadaX(coordenadaX);
+        geoObj.setCoordenadaY(coordenadaY);
+        geoObj.setEstado(servicioGuardado.isEstado());
 
+        System.out.println("Enviando a RabbitMQ: " + geoObj);
         // Enviar por RabbitMQ
-        rabbitTemplate.convertAndSend("message_exchange_services", "queue_services", geoObj);
-
+        rabbitTemplate.convertAndSend("message_exchange_services", "my_routing_key_service", geoObj);
+        System.out.println("Mensaje enviado a RabbitMQ");
         return ResponseEntity.ok(servicioGuardado);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al guardar el servicio: " + e.getMessage());
-        }    
-    }
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al guardar el servicio: " + e.getMessage());
+    }    
+}
 
     @PutMapping("/update/{servicio}")
     public ResponseEntity<?> Actualizar(@RequestBody Servicio servicio){
@@ -91,15 +103,20 @@ public class ServicioControlador {
             // Obtener datos del proveedor
             ProveedorDTO proveedor = proveedorClient.obtenerProveedor(servicio.get_idProveedor());
 
+            // Acceder a las coordenadas anidadas
+            String coordenadaX = proveedor.getProveedorInfo().getCoordenadaX();
+            String coordenadaY = proveedor.getProveedorInfo().getCoordenadaY();
+
             // Crear objeto para análisis
             GeoServiceBusinessObject geoObj = new GeoServiceBusinessObject();
             geoObj.setServiceId(servicioGuardado.get_idServicio().toString());
             geoObj.setServiceName(servicioGuardado.getNombre());
-            geoObj.setCoordenadax(proveedor.getCoordenadax());
-            geoObj.setCoordenaday(proveedor.getCoordenaday());
+            geoObj.setCoordenadaX(coordenadaX);
+            geoObj.setCoordenadaY(coordenadaY);
+            geoObj.setEstado(servicioGuardado.isEstado());
 
             // Enviar por RabbitMQ
-            rabbitTemplate.convertAndSend("message_exchange_services", "queue_services", geoObj);
+            rabbitTemplate.convertAndSend("message_exchange_services", "my_routing_key_service", geoObj);
 
 
             return ResponseEntity.ok(servicioServicio.Actualizar(servicio));
@@ -129,13 +146,13 @@ public class ServicioControlador {
         servicioServicio.eliminarServiciosPorProveedor(idProveedor);
         return ResponseEntity.ok("Servicios del proveedor eliminados correctamente");
     }
-
+/* 
     //CASO: 3 y 4
     @PostMapping("/buscar_servicio")
     public ResponseEntity<?> buscarServicio(@RequestParam("user_id") String userId, @RequestBody ServicioFiltroDTO filtros) {
         try {
             List<Servicio> servicios = servicioServicio.buscarServicios(filtros);
-            UsuarioDTO usuario = usuarioClient.obtenerUsuario(userId);
+            ProveedorDTO proveedor = proveedorClient.obtenerProveedor(Long.parseLong(userId));
             
             for (Servicio servicio : servicios) {
                 // COLA -> Proveedores con mas servicios reciben más busquedas -> relacion proveedor-servicio
@@ -162,5 +179,5 @@ public class ServicioControlador {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al buscar servicios: " + e.getMessage());
         }
     }
-
+*/
 }
