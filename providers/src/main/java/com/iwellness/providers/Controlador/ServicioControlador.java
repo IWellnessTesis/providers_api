@@ -20,11 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.iwellness.providers.Clientes.ProveedorFeignClient;
 import com.iwellness.providers.DTO.BusquedaServicioDTO;
-import com.iwellness.providers.DTO.BusquedaServicioEstadoCivilDTO;
 import com.iwellness.providers.DTO.GeoServiceBusinessObject;
 import com.iwellness.providers.DTO.ProveedorDTO;
 import com.iwellness.providers.DTO.ServicioFiltroDTO;
-import com.iwellness.providers.DTO.UsuarioDTO;
 import com.iwellness.providers.Entidad.Servicio;
 import com.iwellness.providers.Servicio.IServicioServicio;
 
@@ -146,38 +144,5 @@ public ResponseEntity<?> Guardar(@RequestBody Servicio servicio){
         servicioServicio.eliminarServiciosPorProveedor(idProveedor);
         return ResponseEntity.ok("Servicios del proveedor eliminados correctamente");
     }
-/* 
-    //CASO: 3 y 4
-    @PostMapping("/buscar_servicio")
-    public ResponseEntity<?> buscarServicio(@RequestParam("user_id") String userId, @RequestBody ServicioFiltroDTO filtros) {
-        try {
-            List<Servicio> servicios = servicioServicio.buscarServicios(filtros);
-            ProveedorDTO proveedor = proveedorClient.obtenerProveedor(Long.parseLong(userId));
-            
-            for (Servicio servicio : servicios) {
-                // COLA -> Proveedores con mas servicios reciben más busquedas -> relacion proveedor-servicio
-                BusquedaServicioDTO dto = new BusquedaServicioDTO();
-                dto.setProviderId(servicio.get_idProveedor().toString());
-                dto.setServiceId(servicio.get_idServicio().toString());
-                dto.setUserId(userId);
-                dto.setTimestamp(LocalDateTime.now().toString());
 
-                //Informacion de usuario -> Estado civil -> Caso 4
-                BusquedaServicioEstadoCivilDTO dtoEstadoCivil = new BusquedaServicioEstadoCivilDTO();
-                dtoEstadoCivil.setUserId(userId);
-                dtoEstadoCivil.setUserStatus(usuario.getEstadoCivil());
-                dtoEstadoCivil.setUserGenre(filtros.getGenero());
-                dtoEstadoCivil.setServiceName(servicio.getNombre());
-                dtoEstadoCivil.setSearchDate(LocalDateTime.now().toString());
-    
-                rabbitTemplate.convertAndSend("message_exchange_services", "my_queue_busqueda_servicio", dto);
-                rabbitTemplate.convertAndSend("message_exchange_services", "my_queue_estado_civil", dtoEstadoCivil);
-            }
-    
-            return ResponseEntity.ok(servicios);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al buscar servicios: " + e.getMessage());
-        }
-    }
-*/
 }

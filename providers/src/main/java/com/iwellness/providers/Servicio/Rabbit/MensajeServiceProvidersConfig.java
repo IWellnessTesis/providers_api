@@ -14,9 +14,7 @@ import org.springframework.context.annotation.Configuration;
 public class MensajeServiceProvidersConfig {
     public static final String EXCHANGE_NAME = "message_exchange_services";
     public static final String QUEUE_NAME = "my_queue_busqueda_servicio"; // caso 3
-    public static final String QUEUE_NAME_ESTADO_CIVIL = "my_queue_estado_civil"; // caso 4
     public static final String ROUTING_KEY_PROVIDER = "my_routing_key_busqueda_servicio";
-    public static final String ROUTING_KEY_ESTADO_CIVIL = "my_routing_key_estado_civil"; 
     public static final String QUEUE_NAME_SERVICE = "queue_services"; // caso 1
     public static final String ROUTING_KEY_SERVICE = "my_routing_key_service";
 
@@ -41,10 +39,6 @@ public class MensajeServiceProvidersConfig {
         return new Queue(QUEUE_NAME, true);
     }
 
-    @Bean
-    public Queue queueEstadoCivil() {
-        return new Queue(QUEUE_NAME_ESTADO_CIVIL, true);
-    }
 
     @Bean
     public Queue queueService() {
@@ -59,11 +53,6 @@ public class MensajeServiceProvidersConfig {
     @Bean
     public Binding bindingBusquedaServicio(Queue queueBusquedaServicio, TopicExchange exchange) {
         return BindingBuilder.bind(queueBusquedaServicio).to(exchange).with(ROUTING_KEY_PROVIDER);
-    }
-
-    @Bean
-    public Binding bindingEstadoCivil(Queue queueEstadoCivil, TopicExchange exchange) {
-        return BindingBuilder.bind(queueEstadoCivil).to(exchange).with(ROUTING_KEY_ESTADO_CIVIL);
     }
 
 
