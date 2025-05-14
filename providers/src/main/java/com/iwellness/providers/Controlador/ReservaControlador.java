@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.iwellness.providers.Entidad.Reserva;
 import com.iwellness.providers.Servicio.Reserva.IReservaServicio;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/reserva")
@@ -49,6 +51,7 @@ public class ReservaControlador {
 
     @PutMapping("/update")
     public ResponseEntity<?> Actualizar(@RequestBody Reserva reserva){
+        System.out.println("Reserva a actualizar: " + reserva);
         try {
             return ResponseEntity.ok(reservaServicio.Actualizar(reserva));
         } catch (Exception e) {
@@ -65,4 +68,10 @@ public class ReservaControlador {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró la entidad con ID: " + id);
         }
     }
+
+    @GetMapping("/reservasTurista/{id}")
+    public ResponseEntity<?> reservasPorTurista(@PathVariable Long id) {
+        return ResponseEntity.ok(reservaServicio.obtenerReservasPorTurista(id));
+    }
+    
 }
