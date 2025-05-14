@@ -1,4 +1,4 @@
-package com.iwellness.providers.Servicio;
+package com.iwellness.providers.Servicio.Servicio;
 
 import java.util.List;
 import java.util.NoSuchElementException;

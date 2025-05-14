@@ -12,7 +12,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iwellness.providers.Entidad.Servicio;
-import com.iwellness.providers.Servicio.IServicioServicio;
+import com.iwellness.providers.Servicio.Servicio.IServicioServicio;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;

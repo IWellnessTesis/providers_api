@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.iwellness.providers.Entidad.Servicio;
-import com.iwellness.providers.Servicio.IServicioServicio;
+import com.iwellness.providers.Servicio.Servicio.IServicioServicio;
 
 
 @RestController
