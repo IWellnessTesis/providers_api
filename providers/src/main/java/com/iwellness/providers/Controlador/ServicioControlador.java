@@ -67,6 +67,10 @@ public ResponseEntity<?> Guardar(@RequestBody Servicio servicio){
             throw new RuntimeException("El proveedor no tiene información de coordenadas (campo 'proveedorInfo' es null)");
         }
 
+        if (proveedor.getProveedorInfo().getNombreEmpresa() == null || proveedor.getProveedorInfo().getNombreEmpresa().trim().isEmpty()) {
+            throw new RuntimeException("El proveedor no tiene un nombre de empresa válido");
+        }
+
         // Acceder a las coordenadas anidadas
         String coordenadaX = proveedor.getProveedorInfo().getCoordenadaX();
         String coordenadaY = proveedor.getProveedorInfo().getCoordenadaY();
@@ -81,6 +85,8 @@ public ResponseEntity<?> Guardar(@RequestBody Servicio servicio){
         geoObj.setServiceName(servicioGuardado.getNombre());
         geoObj.setCoordenadaX(coordenadaX);
         geoObj.setCoordenadaY(coordenadaY);
+        geoObj.setNombreEmpresa(proveedor.getProveedorInfo().getNombreEmpresa());
+        geoObj.setIdProveedor(servicioGuardado.get_idProveedor());
         geoObj.setEstado(servicioGuardado.isEstado());
 
         System.out.println("Enviando a RabbitMQ: " + geoObj);
@@ -101,6 +107,14 @@ public ResponseEntity<?> Guardar(@RequestBody Servicio servicio){
             // Obtener datos del proveedor
             ProveedorDTO proveedor = proveedorClient.obtenerProveedor(servicio.get_idProveedor());
 
+            if (proveedor.getProveedorInfo() == null) {
+                throw new RuntimeException("El proveedor no tiene información de coordenadas (campo 'proveedorInfo' es null)");
+            }
+
+            if (proveedor.getProveedorInfo().getNombreEmpresa() == null || proveedor.getProveedorInfo().getNombreEmpresa().trim().isEmpty()) {
+                throw new RuntimeException("El proveedor no tiene un nombre de empresa válido");
+            }
+
             // Acceder a las coordenadas anidadas
             String coordenadaX = proveedor.getProveedorInfo().getCoordenadaX();
             String coordenadaY = proveedor.getProveedorInfo().getCoordenadaY();
@@ -111,6 +125,8 @@ public ResponseEntity<?> Guardar(@RequestBody Servicio servicio){
             geoObj.setServiceName(servicioGuardado.getNombre());
             geoObj.setCoordenadaX(coordenadaX);
             geoObj.setCoordenadaY(coordenadaY);
+            geoObj.setNombreEmpresa(proveedor.getProveedorInfo().getNombreEmpresa());
+            geoObj.setIdProveedor(servicioGuardado.get_idProveedor());
             geoObj.setEstado(servicioGuardado.isEstado());
 
             // Enviar por RabbitMQ
