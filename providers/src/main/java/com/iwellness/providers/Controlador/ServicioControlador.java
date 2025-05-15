@@ -24,7 +24,7 @@ import com.iwellness.providers.DTO.GeoServiceBusinessObject;
 import com.iwellness.providers.DTO.ProveedorDTO;
 import com.iwellness.providers.DTO.ServicioFiltroDTO;
 import com.iwellness.providers.Entidad.Servicio;
-import com.iwellness.providers.Servicio.IServicioServicio;
+import com.iwellness.providers.Servicio.Servicio.IServicioServicio;
 
 @RestController
 @RequestMapping("/api/servicio")

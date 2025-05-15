@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import com.iwellness.providers.Entidad.Servicio;
 import com.iwellness.providers.Repositorio.IServicioRepositorio;
+import com.iwellness.providers.Servicio.Servicio.IServicioServicioImpl;
 
 
 
