@@ -14,6 +14,7 @@ public class GeoServiceBusinessObject {
     @JsonProperty("nombre_empresa")
     private String nombreEmpresa;
     private Long idProveedor;
+    private Long idUsuario;
     
 
 }

@@ -6,12 +6,13 @@ import lombok.Data;
 
 @Data
 public class ProveedorDTO {
-    private Long _idUsuario;
+    private Long id;
     private ProveedorInfo proveedorInfo;
 
 
     @Data
     public class ProveedorInfo {
+        private Long id;
         private String coordenadaX;
         private String coordenadaY;
         @JsonProperty("nombre_empresa")

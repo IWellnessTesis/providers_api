@@ -70,6 +70,12 @@ public class ServicioControlador {
 
         // Obtener datos del proveedor
         ProveedorDTO proveedor = proveedorClient.obtenerProveedor(servicio.get_idProveedor());
+        System.out.println("Proveedor recibido: " + proveedor);
+        System.out.println("ProveedorInfo: " + proveedor.getProveedorInfo());
+        System.out.println("idUsuario: " + proveedor.getId());
+        System.out.println("idProveedor: " + proveedor.getProveedorInfo().getId());
+        Long idUsuario = proveedor.getId();
+        Long idProveedor = proveedor.getProveedorInfo().getId();
 
         // Acceder a las coordenadas anidadas
         String coordenadaX = proveedor.getProveedorInfo().getCoordenadaX();
@@ -77,11 +83,14 @@ public class ServicioControlador {
 
         // Crear objeto para análisis
         GeoServiceBusinessObject geoObj = new GeoServiceBusinessObject();
+
         geoObj.setServiceId(servicioGuardado.get_idServicio().toString());
         geoObj.setServiceName(servicioGuardado.getNombre());
         geoObj.setCoordenadaX(coordenadaX);
         geoObj.setCoordenadaY(coordenadaY);
-        geoObj.setIdProveedor(servicioGuardado.get_idProveedor());
+        geoObj.setIdProveedor(idProveedor);
+        geoObj.setIdUsuario(idUsuario);
+        geoObj.setNombreEmpresa(proveedor.getProveedorInfo().getNombreEmpresa());
 
         // Enviar por RabbitMQ
         rabbitTemplate.convertAndSend("message_exchange_services", "queue_services", geoObj);
@@ -99,6 +108,12 @@ public class ServicioControlador {
             Servicio servicioGuardado = servicioServicio.Actualizar(servicio);
             // Obtener datos del proveedor
             ProveedorDTO proveedor = proveedorClient.obtenerProveedor(servicio.get_idProveedor());
+            System.out.println("Proveedor recibido: " + proveedor);
+            System.out.println("ProveedorInfo: " + proveedor.getProveedorInfo());
+            System.out.println("idUsuario: " + proveedor.getId());
+            System.out.println("idProveedor: " + proveedor.getProveedorInfo().getId());
+            Long idUsuario = proveedor.getId();
+            Long idProveedor = proveedor.getProveedorInfo().getId();
 
             if (proveedor.getProveedorInfo() == null) {
                 throw new RuntimeException("El proveedor no tiene información de coordenadas (campo 'proveedorInfo' es null)");
@@ -119,8 +134,10 @@ public class ServicioControlador {
             geoObj.setCoordenadaX(coordenadaX);
             geoObj.setCoordenadaY(coordenadaY);
             geoObj.setNombreEmpresa(proveedor.getProveedorInfo().getNombreEmpresa());
-            geoObj.setIdProveedor(servicioGuardado.get_idProveedor());
+            geoObj.setIdProveedor(idProveedor);
+            geoObj.setIdUsuario(idUsuario);
             geoObj.setEstado(servicioGuardado.isEstado());
+
 
             // Enviar por RabbitMQ
             rabbitTemplate.convertAndSend("message_exchange_services", "my_routing_key_service", geoObj);
