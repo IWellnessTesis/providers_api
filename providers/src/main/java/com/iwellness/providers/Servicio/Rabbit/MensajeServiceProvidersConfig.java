@@ -17,6 +17,8 @@ public class MensajeServiceProvidersConfig {
     public static final String ROUTING_KEY_PROVIDER = "my_routing_key_busqueda_servicio";
     public static final String QUEUE_NAME_SERVICE = "queue_services"; // caso 1
     public static final String ROUTING_KEY_SERVICE = "my_routing_key_service";
+    public static final String QUEUE_NAME_RESERVA = "queue_reservas"; // caso 5
+    public static final String ROUTING_KEY_RESERVA = "my_routing_key_reserva";
 
     @Bean
     public TopicExchange topicexchange() {
@@ -46,6 +48,11 @@ public class MensajeServiceProvidersConfig {
     }
 
     @Bean
+    public Queue queueReserva() {
+        return new Queue(QUEUE_NAME_RESERVA, true);
+    }
+
+    @Bean
     public Binding bindingService(Queue queueService, TopicExchange exchange) {
         return BindingBuilder.bind(queueService).to(exchange).with(ROUTING_KEY_SERVICE);
     }
@@ -53,6 +60,11 @@ public class MensajeServiceProvidersConfig {
     @Bean
     public Binding bindingBusquedaServicio(Queue queueBusquedaServicio, TopicExchange exchange) {
         return BindingBuilder.bind(queueBusquedaServicio).to(exchange).with(ROUTING_KEY_PROVIDER);
+    }
+
+    @Bean
+    public Binding bindingReserva(Queue queueReserva, TopicExchange exchange) {
+        return BindingBuilder.bind(queueReserva).to(exchange).with(ROUTING_KEY_RESERVA);
     }
 
 
