@@ -2,7 +2,6 @@ package com.iwellness.providers.Servicio.Servicio;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.iwellness.providers.Clientes.PreferenciaFeignClient;
 import com.iwellness.providers.Clientes.ProveedorFeignClient;
 import com.iwellness.providers.DTO.ProveedorDTO;
+import com.iwellness.providers.DTO.ServicioFiltroDTO;
 import com.iwellness.providers.Entidad.Servicio;
 import com.iwellness.providers.Repositorio.IServicioRepositorio;
 
@@ -98,5 +98,26 @@ public class IServicioServicioImpl implements IServicioServicio {
     
         servicioRepositorio.deleteBy_idProveedor(idProveedor);
     }
-    
+
+    @Override
+    public List<Servicio> buscarServicios(ServicioFiltroDTO filtros) {
+        Iterable<Servicio> serviciosIterable = servicioRepositorio.findAll();
+        List<Servicio> servicios = new java.util.ArrayList<>();
+        serviciosIterable.forEach(servicios::add);
+        
+        List<Servicio> serviciosFiltrados = new java.util.ArrayList<>();
+        
+        for (Servicio servicio : servicios) {
+            if ((filtros.getNombre() == null || servicio.getNombre().contains(filtros.getNombre())) &&
+                (filtros.getDescripcion() == null || servicio.getDescripcion().contains(filtros.getDescripcion())) &&
+                (filtros.getPrecioMin() == null || servicio.getPrecio() >= filtros.getPrecioMin()) &&
+                (filtros.getPrecioMax() == null || servicio.getPrecio() <= filtros.getPrecioMax()) &&
+                (filtros.getHorario() == null || servicio.getHorario().equals(filtros.getHorario())) &&
+                servicio.isEstado() == filtros.isEstado()) {
+                serviciosFiltrados.add(servicio);
+            }
+        }
+        
+        return serviciosFiltrados;
+    }
 }

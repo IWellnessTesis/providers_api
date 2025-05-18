@@ -1,7 +1,9 @@
 package com.iwellness.providers.Controlador;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +15,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.iwellness.providers.Clientes.ProveedorFeignClient;
+import com.iwellness.providers.DTO.BusquedaServicioDTO;
+import com.iwellness.providers.DTO.GeoServiceBusinessObject;
+import com.iwellness.providers.DTO.ProveedorDTO;
+import com.iwellness.providers.DTO.ReservaAnalisisDTO;
+import com.iwellness.providers.DTO.ServicioFiltroDTO;
+import com.iwellness.providers.Entidad.Reserva;
 import com.iwellness.providers.Entidad.Servicio;
+import com.iwellness.providers.Servicio.Rabbit.MensajeServiceProviders;
+import com.iwellness.providers.Servicio.Reserva.IReservaServicio;
 import com.iwellness.providers.Servicio.Servicio.IServicioServicio;
-
 
 @RestController
 @RequestMapping("/api/servicio")
@@ -26,6 +37,17 @@ public class ServicioControlador {
     
     @Autowired
     private IServicioServicio servicioServicio;
+
+    @Autowired
+    private ProveedorFeignClient proveedorClient;
+
+    @Autowired
+    private IReservaServicio reservaServicio;
+
+    @Autowired
+    private MensajeServiceProviders mensajeService;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
     
     @GetMapping("/all")
     public ResponseEntity<?> BuscarTodos(){
@@ -44,7 +66,36 @@ public class ServicioControlador {
     @PostMapping("/save")
     public ResponseEntity<?> Guardar(@RequestBody Servicio servicio){
     try {
-            return ResponseEntity.ok(servicioServicio.Guardar(servicio));
+        Servicio servicioGuardado = servicioServicio.Guardar(servicio);
+
+        // Obtener datos del proveedor
+        ProveedorDTO proveedor = proveedorClient.obtenerProveedor(servicio.get_idProveedor());
+        System.out.println("Proveedor recibido: " + proveedor);
+        System.out.println("ProveedorInfo: " + proveedor.getProveedorInfo());
+        System.out.println("idUsuario: " + proveedor.getId());
+        System.out.println("idProveedor: " + proveedor.getProveedorInfo().getId());
+        Long idUsuario = proveedor.getId();
+        Long idProveedor = proveedor.getProveedorInfo().getId();
+
+        // Acceder a las coordenadas anidadas
+        String coordenadaX = proveedor.getProveedorInfo().getCoordenadaX();
+        String coordenadaY = proveedor.getProveedorInfo().getCoordenadaY();
+
+        // Crear objeto para análisis
+        GeoServiceBusinessObject geoObj = new GeoServiceBusinessObject();
+
+        geoObj.setServiceId(servicioGuardado.get_idServicio().toString());
+        geoObj.setServiceName(servicioGuardado.getNombre());
+        geoObj.setCoordenadaX(coordenadaX);
+        geoObj.setCoordenadaY(coordenadaY);
+        geoObj.setIdProveedor(idProveedor);
+        geoObj.setIdUsuario(idUsuario);
+        geoObj.setNombreEmpresa(proveedor.getProveedorInfo().getNombreEmpresa());
+
+        // Enviar por RabbitMQ
+        rabbitTemplate.convertAndSend("message_exchange_services", "queue_services", geoObj);
+
+        return ResponseEntity.ok(servicioGuardado);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al guardar el servicio: " + e.getMessage());
         }    
@@ -53,6 +104,45 @@ public class ServicioControlador {
     @PutMapping("/update/{servicio}")
     public ResponseEntity<?> Actualizar(@RequestBody Servicio servicio){
         try {
+
+            Servicio servicioGuardado = servicioServicio.Actualizar(servicio);
+            // Obtener datos del proveedor
+            ProveedorDTO proveedor = proveedorClient.obtenerProveedor(servicio.get_idProveedor());
+            System.out.println("Proveedor recibido: " + proveedor);
+            System.out.println("ProveedorInfo: " + proveedor.getProveedorInfo());
+            System.out.println("idUsuario: " + proveedor.getId());
+            System.out.println("idProveedor: " + proveedor.getProveedorInfo().getId());
+            Long idUsuario = proveedor.getId();
+            Long idProveedor = proveedor.getProveedorInfo().getId();
+
+            if (proveedor.getProveedorInfo() == null) {
+                throw new RuntimeException("El proveedor no tiene información de coordenadas (campo 'proveedorInfo' es null)");
+            }
+
+            if (proveedor.getProveedorInfo().getNombreEmpresa() == null || proveedor.getProveedorInfo().getNombreEmpresa().trim().isEmpty()) {
+                throw new RuntimeException("El proveedor no tiene un nombre de empresa válido");
+            }
+
+            // Acceder a las coordenadas anidadas
+            String coordenadaX = proveedor.getProveedorInfo().getCoordenadaX();
+            String coordenadaY = proveedor.getProveedorInfo().getCoordenadaY();
+
+            // Crear objeto para análisis
+            GeoServiceBusinessObject geoObj = new GeoServiceBusinessObject();
+            geoObj.setServiceId(servicioGuardado.get_idServicio().toString());
+            geoObj.setServiceName(servicioGuardado.getNombre());
+            geoObj.setCoordenadaX(coordenadaX);
+            geoObj.setCoordenadaY(coordenadaY);
+            geoObj.setNombreEmpresa(proveedor.getProveedorInfo().getNombreEmpresa());
+            geoObj.setIdProveedor(idProveedor);
+            geoObj.setIdUsuario(idUsuario);
+            geoObj.setEstado(servicioGuardado.isEstado());
+
+
+            // Enviar por RabbitMQ
+            rabbitTemplate.convertAndSend("message_exchange_services", "my_routing_key_service", geoObj);
+
+
             return ResponseEntity.ok(servicioServicio.Actualizar(servicio));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al actualizar el servicio: " + e.getMessage());
@@ -80,5 +170,5 @@ public class ServicioControlador {
         servicioServicio.eliminarServiciosPorProveedor(idProveedor);
         return ResponseEntity.ok("Servicios del proveedor eliminados correctamente");
     }
-    
+
 }
