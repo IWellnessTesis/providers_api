@@ -91,9 +91,11 @@ public class ServicioControlador {
         geoObj.setIdProveedor(idProveedor);
         geoObj.setIdUsuario(idUsuario);
         geoObj.setNombreEmpresa(proveedor.getProveedorInfo().getNombreEmpresa());
+        geoObj.setEstado(servicioGuardado.isEstado());
+
 
         // Enviar por RabbitMQ
-        rabbitTemplate.convertAndSend("message_exchange_services", "queue_services", geoObj);
+        rabbitTemplate.convertAndSend("message_exchange_services", "my_routing_key_service", geoObj);
 
         return ResponseEntity.ok(servicioGuardado);
         } catch (Exception e) {

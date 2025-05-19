@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class ReservaAnalisisDTO {
+    private Long id;
     private Long _idServicio;
     private Long _idTurista;
     private Long _idUsuario;

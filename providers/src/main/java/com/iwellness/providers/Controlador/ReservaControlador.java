@@ -1,5 +1,7 @@
 package com.iwellness.providers.Controlador;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,25 +55,24 @@ public class ReservaControlador {
     }
 
     @PostMapping("/save")
-public ResponseEntity<?> guardar(@RequestBody ReservaAnalisisDTO reservaDTO) {
+public ResponseEntity<?> guardar(@RequestBody Reserva reserva) {
     try {
 
-        TuristaDTO turistaDTO = turistaClient.obtenerTurista(reservaDTO.get_idTurista());
-        System.out.println("Reserva a guardar: " + reservaDTO);
-        System.out.println("idServicio: " + reservaDTO.get_idServicio());
+        TuristaDTO turistaDTO = turistaClient.obtenerTurista(reserva.get_idTurista());
+        System.out.println("Reserva a guardar: " + reserva);
+        System.out.println("idServicio: " + reserva.get_idServicio());
         System.out.println("idUsuario: " + turistaDTO.getId());
-        System.out.println("idTurista: " + turistaDTO.getTuristaInfo().getId());
-        Long idTurista = turistaDTO.getTuristaInfo().getId();
-        
-        Reserva reserva = new Reserva();
-        reserva.set_idServicio(reservaDTO.get_idServicio());
-        reserva.setFechaServicio(reservaDTO.getFechaServicio());
-        reserva.setFechaReserva(reservaDTO.getFechaReserva());
-        reserva.setEstado(reservaDTO.getEstado());
-        reserva.set_idTurista(idTurista);
-
+        Long idTurista = turistaDTO.getId();
 
         Reserva reservaGuardada = reservaServicio.Guardar(reserva);
+
+        ReservaAnalisisDTO reservaDTO = new ReservaAnalisisDTO();
+        reservaDTO.setId(reservaGuardada.getId());
+        reservaDTO.set_idServicio(reservaGuardada.get_idServicio());
+        reservaDTO.setFechaServicio(reservaGuardada.getFechaServicio());
+        reservaDTO.setFechaReserva(reservaGuardada.getFechaReserva());
+        reservaDTO.setEstado(reservaGuardada.getEstado());
+        reservaDTO.set_idTurista(idTurista);
 
         //Enviar a RabbitMQ
         reservaDTO.set_idTurista(idTurista);
@@ -84,37 +85,40 @@ public ResponseEntity<?> guardar(@RequestBody ReservaAnalisisDTO reservaDTO) {
     }
 }
 
-    @PutMapping("/update")
-    public ResponseEntity<?> Actualizar(@RequestBody ReservaAnalisisDTO reservaDTO){
-        System.out.println("Reserva a actualizar: " + reservaDTO);
-        try {
+   @PutMapping("/update")
+public ResponseEntity<?> Actualizar(@RequestBody ReservaAnalisisDTO reservaDTO) {
+    System.out.println("Reserva a actualizar: " + reservaDTO);
+    try {
+        Optional<Reserva> reservaExistenteOpt = Optional.ofNullable(reservaServicio.BuscarPorId(reservaDTO.getId()));
 
-            TuristaDTO turistaDTO = turistaClient.obtenerTurista(reservaDTO.get_idTurista());
-            System.out.println("Reserva a actualizar: " + reservaDTO);
-            System.out.println("idServicio: " + reservaDTO.get_idServicio());
-            System.out.println("idUsuario: " + turistaDTO.getId());
-            System.out.println("idTurista: " + turistaDTO.getTuristaInfo().getId());
-            Long idTurista = turistaDTO.getTuristaInfo().getId();
-             // Mapear el DTO a la entidad Reserva
-        Reserva reserva = new Reserva();
-        reserva.set_idServicio(reservaDTO.get_idServicio());
-        reserva.setFechaServicio(reservaDTO.getFechaServicio());
-        reserva.setFechaReserva(reservaDTO.getFechaReserva());
-        reserva.setEstado(reservaDTO.getEstado());
-        reserva.set_idTurista(idTurista);
+        if (reservaExistenteOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Reserva no encontrada con id: " + reservaDTO.getId());
+        }
 
+        Reserva reservaExistente = reservaExistenteOpt.get();
 
-        Reserva reservaActualizada = reservaServicio.Actualizar(reserva);
+        TuristaDTO turistaDTO = turistaClient.obtenerTurista(reservaDTO.get_idTurista());
+        Long idTurista = turistaDTO.getId();
+
+        // Actualizar los campos
+        reservaExistente.setId(reservaDTO.getId());
+        reservaExistente.set_idServicio(reservaDTO.get_idServicio());
+        reservaExistente.setFechaServicio(reservaDTO.getFechaServicio());
+        reservaExistente.setFechaReserva(reservaDTO.getFechaReserva());
+        reservaExistente.setEstado(reservaDTO.getEstado());
+        reservaExistente.set_idTurista(idTurista);
+
+        Reserva reservaActualizada = reservaServicio.Actualizar(reservaExistente);
 
         // Enviar a RabbitMQ
         reservaDTO.set_idTurista(idTurista);
         mensajeService.enviarMensajeReserva(reservaDTO);
 
         return ResponseEntity.ok(reservaActualizada);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al actualizar la reserva: " + e.getMessage());
-        }
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al actualizar la reserva: " + e.getMessage());
     }
+}
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> Eliminar(@PathVariable Long id){
