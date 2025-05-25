@@ -15,19 +15,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.iwellness.providers.Clientes.ProveedorFeignClient;
-import com.iwellness.providers.DTO.BusquedaServicioDTO;
 import com.iwellness.providers.DTO.GeoServiceBusinessObject;
 import com.iwellness.providers.DTO.ProveedorDTO;
-import com.iwellness.providers.DTO.ReservaAnalisisDTO;
-import com.iwellness.providers.DTO.ServicioFiltroDTO;
-import com.iwellness.providers.Entidad.Reserva;
 import com.iwellness.providers.Entidad.Servicio;
-import com.iwellness.providers.Servicio.Rabbit.MensajeServiceProviders;
-import com.iwellness.providers.Servicio.Reserva.IReservaServicio;
 import com.iwellness.providers.Servicio.Servicio.IServicioServicio;
 
 @RestController
@@ -41,11 +34,6 @@ public class ServicioControlador {
     @Autowired
     private ProveedorFeignClient proveedorClient;
 
-    @Autowired
-    private IReservaServicio reservaServicio;
-
-    @Autowired
-    private MensajeServiceProviders mensajeService;
     @Autowired
     private RabbitTemplate rabbitTemplate;
     
