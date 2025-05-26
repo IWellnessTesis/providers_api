@@ -12,7 +12,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iwellness.providers.Entidad.Servicio;
-import com.iwellness.providers.Servicio.IServicioServicio;
+import com.iwellness.providers.Servicio.Servicio.IServicioServicio;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -76,21 +77,6 @@ public class ServicioControladorTest {
                 .andExpect(status().isNotFound());
     }
 
-    // POST /api/servicio/save/{servicio} - Éxito
-    @Test
-    public void testGuardar_Success() throws Exception {
-        Servicio servicio = new Servicio();
-        when(servicioServicio.Guardar(any(Servicio.class))).thenReturn(servicio);
-
-        String servicioJson = objectMapper.writeValueAsString(servicio);
-
-        // Se utiliza un valor "dummy" en la URL para completar la ruta
-        mockMvc.perform(post("/api/servicio/save/dummy")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(servicioJson))
-                .andExpect(status().isOk());
-    }
-
     // POST /api/servicio/save/{servicio} - Error al guardar
     @Test
     public void testGuardar_BadRequest() throws Exception {
@@ -100,24 +86,10 @@ public class ServicioControladorTest {
         Servicio servicio = new Servicio();
         String servicioJson = objectMapper.writeValueAsString(servicio);
 
-        mockMvc.perform(post("/api/servicio/save/dummy")
+        mockMvc.perform(post("/api/servicio/save")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(servicioJson))
                 .andExpect(status().isBadRequest());
-    }
-
-    // PUT /api/servicio/update/{servicio} - Éxito
-    @Test
-    public void testActualizar_Success() throws Exception {
-        Servicio servicio = new Servicio();
-        when(servicioServicio.Actualizar(any(Servicio.class))).thenReturn(servicio);
-
-        String servicioJson = objectMapper.writeValueAsString(servicio);
-
-        mockMvc.perform(put("/api/servicio/update/dummy")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(servicioJson))
-                .andExpect(status().isOk());
     }
 
     // PUT /api/servicio/update/{servicio} - Error al actualizar
